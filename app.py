@@ -7,6 +7,7 @@ from collections import OrderedDict
 from bs4 import BeautifulSoup
 from flask_apscheduler import APScheduler
 from models import Users,RssPosts
+import traceback
 import json
 import xmltodict
 import requests
@@ -38,7 +39,8 @@ def token_required(f):
                 if int(str(diff).split(':')[1])<1:
                     return jsonify({'message':'Token is expired!'}),401
             user = Users.objects.filter(public_id= jwt_token['id']).first()
-        except:
+        except Exception as e:
+            print(traceback.format_exc())
             return jsonify({'message':'Token is invalid!'}),401
         return f(user,*args,**kwargs)
     return decorator
@@ -117,6 +119,7 @@ def rss_parser():
                     rsspost.save()
     count =RssPosts.objects.all().count()
     print(count)
+
 ###################--User-Operations--##################
 @myapp.route('/users',methods=['GET'])
 @token_required
@@ -152,6 +155,7 @@ def get_one_user(current_user,public_id):
     usr_dct['password']  = user.passwd
 
     return jsonify({'user':usr_dct})
+
 @myapp.route('/users',methods=['POST'])
 @token_required
 def create_user(current_user):
