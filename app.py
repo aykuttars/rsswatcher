@@ -35,8 +35,8 @@ def token_required(f):
             jwt_token = jwt.decode(token,myapp.config['SECRET_KEY'])
             if 'expires' in jwt_token:
                 date_time_obj = datetime.datetime.strptime(jwt_token['expires'], '%Y-%m-%d %H:%M:%S.%f')
-                diff =date_time_obj-datetime.datetime.utcnow()
-                if int(str(diff).split(':')[1])<1:
+                now =datetime.datetime.utcnow()-datetime.timedelta(minutes =30)
+                if date_time_obj<now:
                     return jsonify({'message':'Token is expired!'}),401
             user = Users.objects.filter(public_id= jwt_token['id']).first()
         except Exception as e:
