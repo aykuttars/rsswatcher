@@ -56,6 +56,7 @@ def rss_parser():
                 ]
     for rss in rss_list:
         response = requests.get(rss['url'])
+        response.encoding = response.apparent_encoding
         encoding = response.encoding if "charset" in response.headers.get("content-type", "").lower() else "ISO-8859"
         resp_text = json.loads(json.dumps(xmltodict.parse(response.text)))
         header   = "empty"
