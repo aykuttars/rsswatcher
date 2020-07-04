@@ -213,9 +213,11 @@ def login():
         return make_response('Please check your username',401,{'WWW-Authenticate':'Login required'})
 
     if chkpasswd(user.passwd,authentication.password):
-        token = jwt.encode({'id':user.public_id,'expires':str(datetime.datetime.utcnow()+datetime.timedelta(minutes =30))},myapp.config['SECRET_KEY'],algorithm='HS256')
-        print(token)
-        return jsonify({'token':token.decode('UTF-8')})
+        token     = jwt.encode({'id':user.public_id,'expires':str(datetime.datetime.utcnow()+datetime.timedelta(minutes =30))},myapp.config['SECRET_KEY'],algorithm='HS256')
+        resp_body = {'user_name':user.username,'token_expires':datetime.datetime.utcnow()+datetime.timedelta(minutes =30),'jwt_token':token.decode('UTF-8'),'is_admin':user.is_admin}
+        resp      = jsonify(resp_body)
+        resp.headers['access-control-token'] = token.decode('UTF-8')
+        return resp
     return make_response('Please check your password',401,{'WWW-Authenticate':'Login required'})
     
 if __name__ == '__main__':
