@@ -1,5 +1,6 @@
 from flask import Flask,request,jsonify,make_response
 from mongoengine import *
+from mongoengine.queryset.visitor import Q as QM
 from PIL import Image
 from werkzeug.security import generate_password_hash as makepasswd,check_password_hash as chkpasswd
 from functools import wraps
@@ -12,6 +13,7 @@ import json
 import xmltodict
 import requests
 import datetime
+import pytz
 import jwt
 import uuid
 import dateparser
@@ -19,7 +21,8 @@ import dateparser
 myapp = Flask(__name__)
 scheduler = APScheduler()
 myapp.config['SECRET_KEY'] ='y0gve&v@x8efft-+gycp(pm!l8koa_+d4uecr&bm*l49%!'
-connect('rsswatch',host='192.168.1.14', username='example2', password='example', authentication_source='admin')
+myapp.config['JSON_AS_ASCII'] = False
+connect('rsswatch',host='127.0.0.1', username='example', password='example', authentication_source='admin')
 myapp.config['MONGODB_CONNECT'] = True
 
 ####################--JWT-Decorator--###################
@@ -93,6 +96,7 @@ def rss_parser():
                 rsspost.url=url
                 rsspost.date=date
                 rsspost.provider = rss['rss']
+                rsspost.users =users
                 check =RssPosts.objects.filter(url =url).first()
                 if not check:
                     rsspost.save()
@@ -115,6 +119,7 @@ def rss_parser():
                 rsspost.url=url
                 rsspost.date=date
                 rsspost.provider = rss['rss']
+                rsspost.users =users
                 check =RssPosts.objects.filter(url =url).first()
                 if not check:
                     rsspost.save()
@@ -219,9 +224,58 @@ def login():
         resp.headers['access-control-token'] = token.decode('UTF-8')
         return resp
     return make_response('Please check your password',401,{'WWW-Authenticate':'Login required'})
+##################################-- RSS---- LIST--############################
+@myapp.route('/rss_list',methods=['GET'])
+@token_required
+def get_rss_list(current_user):
+    start  = 0
+    length = 10
+    date   = None
+    if request.args.get('start'):
+        start=request.args.get('start')
+    if request.args.get('length'):
+        length = request.args.get('length')
+    if not isinstance(request.args.get('time'),datetime.date):
+        date =request.args.get('time')
+    elif isinstance(request.args.get('time'),datetime.date):
+        date = datetime.datetime.strptime(request.args.get('time'), '%Y-%m-%d %H:%M:%S')
+        
+    search =  request.args.get('search')
+    now    =  datetime.datetime.utcnow()
+    
+    rss_objects = RssPosts.objects.all()
+    if search:
+        rss_objects=rss_objects.filter(QM(header__icontains =search)|
+                                       QM(detail__icontains = search)|
+                                       QM(provider__icontains=search))
+    if date:
+        if isinstance(date,datetime.date):
+            search_date = date
+        elif date.split(' ')[1] =='day':
+            search_date = datetime.datetime.utcnow()-datetime.timedelta(days =date.split(' ')[0])
+        elif date.split(' ') =='day':
+            search_date = datetime.datetime.utcnow()-datetime.timedelta(hours =date.split(' ')[0])
+        rss_objects = rss_objects.filter(date__gte = search_date)
+    
+    rss_objects = rss_objects.skip(int(start)).limit(int(length)).order_by('date')
+    
+    rss_list = []
+    for rss in rss_objects:
+        rss_dict = {}
+        rss_dict['header'] = rss.header
+        rss_dict['detail'] = rss.detail
+        rss_dict['url'] = rss.url
+        rss_dict['date'] = pytz.utc.localize(rss.date).isoformat()
+        rss_dict['provider'] = rss.provider
+        rss_dict['image'] = rss.image
+        rss_dict['rank'] = rss.rank
+        rss_list.append(rss_dict)
+    print(rss_list)
+    rss_objects.count()
+    return jsonify(rss_list)
     
 if __name__ == '__main__':
     
-    scheduler.add_job(id:="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
+    scheduler.add_job(id="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
     scheduler.start()
     myapp.run(debug =True)
