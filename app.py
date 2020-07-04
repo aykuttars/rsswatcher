@@ -43,8 +43,7 @@ def token_required(f):
                     return jsonify({'message':'Token is expired!'}),401
             user = Users.objects.filter(public_id= jwt_token['id']).first()
         except Exception as e:
-            print(traceback.format_exc())
-            return jsonify({'message':'Token is invalid!'}),401
+            return jsonify({'message':'Token is invalid!','details':traceback.format_exc()}),401
         return f(user,*args,**kwargs)
     return decorator
 ###################--Rss-Parse--########################
@@ -124,7 +123,6 @@ def rss_parser():
                 if not check:
                     rsspost.save()
     count =RssPosts.objects.all().count()
-    print(count)
 
 ###################--User-Operations--##################
 @myapp.route('/users',methods=['GET'])
@@ -270,7 +268,6 @@ def get_rss_list(current_user):
         rss_dict['image'] = rss.image
         rss_dict['rank'] = rss.rank
         rss_list.append(rss_dict)
-    print(rss_list)
     rss_objects.count()
     return jsonify(rss_list)
     
