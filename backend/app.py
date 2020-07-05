@@ -205,23 +205,23 @@ def delete_user(current_user,public_id):
         return jsonify({'message':'The user has been deleted'})
     else:
         return jsonify({'message':'The user has not been deleted'})
-@myapp.route('/login')
+@myapp.route('/login',methods=['POST'])
 def login():
-    authentication = request.authorization
-    if not authentication or not authentication.username or not authentication.password:
-        return make_response('Please check your login method',401,{'WWW-Authenticate':'Login required'})
-    user = Users.objects.filter(username=authentication.username).first()
+    authentication = request.get_json()
+    if not authentication or not authentication['username'] or not authentication['password']:
+        return make_response({'message':'Username or password wrong','status':'error'},404)
+    user = Users.objects.filter(username=authentication['username']).first()
 
     if not user:
-        return make_response('Please check your username',401,{'WWW-Authenticate':'Login required'})
+        return make_response({'message':'Username or password wrong','status':'error'},401)
 
-    if chkpasswd(user.passwd,authentication.password):
+    if chkpasswd(user.passwd,authentication['password']):
         token     = jwt.encode({'id':user.public_id,'expires':str(datetime.datetime.utcnow()+datetime.timedelta(minutes =30))},myapp.config['SECRET_KEY'],algorithm='HS256')
-        resp_body = {'user_name':user.username,'token_expires':datetime.datetime.utcnow()+datetime.timedelta(minutes =30),'jwt_token':token.decode('UTF-8'),'is_admin':user.is_admin}
+        resp_body = {'user_name':user.username,'token_expires':pytz.utc.localize(datetime.datetime.utcnow()+datetime.timedelta(minutes =30)).isoformat(),'jwt_token':token.decode('UTF-8'),'is_admin':user.is_admin}
         resp      = jsonify(resp_body)
-        resp.headers['access-control-token'] = token.decode('UTF-8')
+        resp.headers['Access-Control-Token'] = token.decode('UTF-8')
         return resp
-    return make_response('Please check your password',401,{'WWW-Authenticate':'Login required'})
+    return make_response({'message':'Username or password wrong','status':'error'},401)
 ##################################-- RSS---- LIST--############################
 @myapp.route('/rss_list',methods=['GET'])
 @token_required
