@@ -7,7 +7,7 @@ from functools import wraps
 from collections import OrderedDict
 from bs4 import BeautifulSoup
 from flask_apscheduler import APScheduler
-from models import Users,RssPosts
+from models import Users,RssPosts,ExpiredJwtTokens
 from flask_cors import CORS
 import traceback
 import json
@@ -34,6 +34,9 @@ def token_required(f):
         token =None
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
+            is_expires = ExpiredJwtTokens.objects.filter(token=token).first()
+            if is_expires:
+                return jsonify({'message':'Token is invalid!'}),401
         if not token:
             return jsonify({'message':'Token is required!'}),401
         try:
@@ -42,7 +45,7 @@ def token_required(f):
                 date_time_obj = datetime.datetime.strptime(jwt_token['expires'], '%Y-%m-%d %H:%M:%S.%f')
                 now =datetime.datetime.utcnow()-datetime.timedelta(minutes =30)
                 if date_time_obj<now:
-                    return jsonify({'message':'Token is expired!'}),401
+                    return jsonify({'message':'Token is invalid!'}),401
             user = Users.objects.filter(public_id= jwt_token['id']).first()
         except Exception as e:
             return jsonify({'message':'Token is invalid!','details':traceback.format_exc()}),401
