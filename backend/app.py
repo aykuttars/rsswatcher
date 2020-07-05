@@ -125,7 +125,9 @@ def rss_parser():
                 if not check:
                     rsspost.save()
     count =RssPosts.objects.all().count()
-
+def delete_old_tokens():
+    tokens = ExpiredJwtTokens.objects.filter(expired_date__lte=datetime.datetime.utcnow())
+    tokens.delete()
 ###################--User-Operations--##################
 @myapp.route('/users',methods=['GET'])
 @token_required
@@ -307,6 +309,7 @@ def update_feeds(current_user, id):
         feed.save()
         return jsonify({"status": "success"})
     return make_response({'message':'Wrong rank value','status':'error'},400)
+scheduler.add_job(id="jwt expires checker",func=delete_old_tokens,trigger='interval',minutes =2)
 scheduler.add_job(id="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
 scheduler.start()
 if __name__ == '__main__':
