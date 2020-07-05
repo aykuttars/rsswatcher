@@ -281,7 +281,6 @@ def search_feeds(current_user):
         return jsonify({"draw":request.args.get('draw'),"data":rss_list,"recordsFiltered":filtered_count,"recordsTotal":total_count})
     return jsonify({"data":rss_list,"recordsFiltered":filtered_count,"recordsTotal":total_count})
 
-if __name__ == '__main__':
 
 @myapp.route('/feeds/<id>',methods=['PUT'])
 @token_required
