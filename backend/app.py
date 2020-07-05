@@ -269,11 +269,12 @@ def search_feeds(current_user):
     if date:
         if isinstance(date,datetime.date):
             search_date = date
-        elif date.split('_')[1] =='day':
-            search_date = datetime.datetime.utcnow()-datetime.timedelta(days =date.split(' ')[0])
-        elif date.split('_')[1] =='hour':
-            search_date = datetime.datetime.utcnow()-datetime.timedelta(hours =date.split(' ')[0])
-        rss_objects = rss_objects.filter(date__gte = search_date)
+        elif  '_' in date and date.split('_')[1] =='day':
+            search_date = datetime.datetime.utcnow()-datetime.timedelta(days =int(date.split('_')[0]))
+        elif '_' in date and date.split('_')[1] =='hour':
+            search_date = datetime.datetime.utcnow()-datetime.timedelta(hours =int(date.split('_')[0]))
+        if isinstance(search_date,datetime.date):
+            rss_objects = rss_objects.filter(date__gte = search_date)
     
     rss_objects = rss_objects.skip(int(start)).limit(int(length)).order_by('date')
     
