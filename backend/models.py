@@ -10,6 +10,10 @@ class Users(Document):
     public_id    = StringField(unique=True)
     is_admin     = BooleanField(default=False)
 
+class RssFeeds(Document):
+    name         = StringField()
+    url          = StringField()
+
 class RssPosts(Document):
     header       = StringField()
     detail       = StringField(null=True)

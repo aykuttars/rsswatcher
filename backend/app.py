@@ -1,13 +1,13 @@
-from flask import Flask,request,jsonify,make_response
+from flask import Flask, request, jsonify, make_response
 from mongoengine import *
 from mongoengine.queryset.visitor import Q as QM
 from PIL import Image
-from werkzeug.security import generate_password_hash as makepasswd,check_password_hash as chkpasswd
+from werkzeug.security import generate_password_hash as makepasswd, check_password_hash as chkpasswd
 from functools import wraps
 from collections import OrderedDict
 from bs4 import BeautifulSoup
 from flask_apscheduler import APScheduler
-from models import Users,RssPosts,ExpiredJwtTokens
+from models import Users, RssFeeds, RssPosts, ExpiredJwtTokens
 from flask_cors import CORS
 import traceback
 import json
@@ -53,16 +53,9 @@ def token_required(f):
     return decorator
 ###################--Rss-Parse--########################
 def rss_parser():
-    rss_list = [{'rss':'mynet','url':'http://www.mynet.com/haber/rss/sondakika'},
-                {'rss':'haberturk','url':'http://www.haberturk.com/rss/manset.xml'},
-                {'rss':'cnnturk','url':'https://www.cnnturk.com/feed/rss/all/news'},
-                {'rss':'sabah','url':'https://www.sabah.com.tr/rss/gundem.xml'},
-                {'rss':'ahaber','url':'https://www.ahaber.com.tr/rss/son24saat.xml'},
-                {'rss':'ntv','url':'https://www.ntv.com.tr/son-dakika.rss'},
-                {'rss':'bbc','url':'http://feeds.bbci.co.uk/turkce/rss.xml'}
-                ]
+    rss_list = RssFeeds.objects.all()
     for rss in rss_list:
-        response = requests.get(rss['url'])
+        response = requests.get(rss.url)
         response.encoding = response.apparent_encoding
         encoding = response.encoding if "charset" in response.headers.get("content-type", "").lower() else "ISO-8859"
         resp_text = json.loads(json.dumps(xmltodict.parse(response.text)))
@@ -99,7 +92,7 @@ def rss_parser():
                 rsspost.image =image
                 rsspost.url=url
                 rsspost.date=date
-                rsspost.provider = rss['rss']
+                rsspost.provider = rss.name
                 rsspost.users =users
                 check =RssPosts.objects.filter(url =url).first()
                 if not check:
@@ -122,7 +115,7 @@ def rss_parser():
                 rsspost.image =image
                 rsspost.url=url
                 rsspost.date=date
-                rsspost.provider = rss['rss']
+                rsspost.provider = rss.name
                 rsspost.users =users
                 check =RssPosts.objects.filter(url =url).first()
                 if not check:
