@@ -280,7 +280,22 @@ def search_feeds(current_user):
     return jsonify({"data":rss_list,"recordsFiltered":filtered_count,"recordsTotal":total_count})
 
 if __name__ == '__main__':
-    
-    scheduler.add_job(id="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
-    scheduler.start()
+
+@myapp.route('/feeds/<id>',methods=['PUT'])
+@token_required
+def update_feeds(current_user, id):
+    data = request.get_json().get('rank')
+    if isinstance(data, float) or isinstance(data, int):
+        feed = RssPosts.objects.filter(pk = id).first()
+        if data <0:
+            data =0
+        elif data >5:
+            data = 5
+        feed.rank = data
+        feed.save()
+        return jsonify({"status": "success"})
+    return make_response({'message':'Wrong rank value','status':'error'},400)
+scheduler.add_job(id="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
+scheduler.start()
+if __name__ == '__main__':
     myapp.run(debug =True)
