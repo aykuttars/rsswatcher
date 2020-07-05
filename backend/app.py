@@ -129,6 +129,7 @@ def delete_old_tokens():
 @myapp.route('/users',methods=['GET'])
 @token_required
 def get_all_users(current_user):
+    rss_parser()
     if not current_user.is_admin:
         return jsonify({'message':'you are not authorized user'})
     users = Users.objects.all()
@@ -236,6 +237,40 @@ def login():
         return resp
     return make_response({'message':'Username or password wrong','status':'error'},401)
 ##################################-- RSS---- LIST--############################
+@myapp.route('/rss_sources',methods=['GET'])
+@token_required
+def get_rss_sources(current_user):
+    sources = RssFeeds.objects.all()
+    if not sources:
+        return jsonify({'message':'No Source Found!'})
+    lst= []
+    for source in sources:
+        source_dct= {}
+        source_dct['id']   = str(source.pk)
+        source_dct['name'] = source.name
+        source_dct['url']  = source.url
+        lst.append(source_dct)
+
+    return jsonify({'sources':lst})
+
+@myapp.route('/rss_sources',methods=['POST'])
+@token_required
+def add_rss_sources(current_user):
+    data   = request.get_json()
+    if data.get('name') and data.get('url'):
+        source = RssFeeds.objects.create(name=data['name'],url=data['url'])
+        return jsonify({'Message':'New source sreated','id':str(source.pk)})
+    return jsonify({'Message':'source not created'})
+
+@myapp.route('/rss_sources/<id>',methods=['DELETE'])
+@token_required
+def del_rss_sources(current_user,id):
+    try:
+        source = RssFeeds.objects.find(pk=id).first()
+        source.delete()
+        return jsonify({'Message':'Source deleted'})
+    except:
+        return jsonify({'Message':'Source not deleted'})
 @myapp.route('/feeds',methods=['GET'])
 @token_required
 def search_feeds(current_user):
