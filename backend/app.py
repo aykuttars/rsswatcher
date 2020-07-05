@@ -8,6 +8,7 @@ from collections import OrderedDict
 from bs4 import BeautifulSoup
 from flask_apscheduler import APScheduler
 from models import Users,RssPosts
+from flask_cors import CORS
 import traceback
 import json
 import xmltodict
@@ -19,6 +20,7 @@ import uuid
 import dateparser
 
 myapp = Flask(__name__)
+CORS(myapp)
 scheduler = APScheduler()
 myapp.config['SECRET_KEY'] ='y0gve&v@x8efft-+gycp(pm!l8koa_+d4uecr&bm*l49%!'
 myapp.config['JSON_AS_ASCII'] = False
