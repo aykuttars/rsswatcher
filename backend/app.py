@@ -223,9 +223,9 @@ def login():
         return resp
     return make_response({'message':'Username or password wrong','status':'error'},401)
 ##################################-- RSS---- LIST--############################
-@myapp.route('/rss_list',methods=['GET'])
+@myapp.route('/feeds',methods=['GET'])
 @token_required
-def get_rss_list(current_user):
+def search_feeds(current_user):
     start  = 0
     length = 10
     date   = None
@@ -241,7 +241,12 @@ def get_rss_list(current_user):
     search =  request.args.get('search')
     now    =  datetime.datetime.utcnow()
     
+    if request.args.get('draw'):
+        if request.args.get('search[value]'):
+            search = request.args.get('search[value]')
+        
     rss_objects = RssPosts.objects.all()
+    total_count = rss_objects.count()
     if search:
         rss_objects=rss_objects.filter(QM(header__icontains =search)|
                                        QM(detail__icontains = search)|
@@ -249,9 +254,9 @@ def get_rss_list(current_user):
     if date:
         if isinstance(date,datetime.date):
             search_date = date
-        elif date.split(' ')[1] =='day':
+        elif date.split('_')[1] =='day':
             search_date = datetime.datetime.utcnow()-datetime.timedelta(days =date.split(' ')[0])
-        elif date.split(' ') =='day':
+        elif date.split('_')[1] =='hour':
             search_date = datetime.datetime.utcnow()-datetime.timedelta(hours =date.split(' ')[0])
         rss_objects = rss_objects.filter(date__gte = search_date)
     
@@ -260,6 +265,7 @@ def get_rss_list(current_user):
     rss_list = []
     for rss in rss_objects:
         rss_dict = {}
+        rss_dict['id'] = str(rss.pk)
         rss_dict['header'] = rss.header
         rss_dict['detail'] = rss.detail
         rss_dict['url'] = rss.url
@@ -268,9 +274,11 @@ def get_rss_list(current_user):
         rss_dict['image'] = rss.image
         rss_dict['rank'] = rss.rank
         rss_list.append(rss_dict)
-    rss_objects.count()
-    return jsonify(rss_list)
-    
+    filtered_count = rss_objects.count()
+    if request.args.get('draw'):
+        return jsonify({"draw":request.args.get('draw'),"data":rss_list,"recordsFiltered":filtered_count,"recordsTotal":total_count})
+    return jsonify({"data":rss_list,"recordsFiltered":filtered_count,"recordsTotal":total_count})
+
 if __name__ == '__main__':
     
     scheduler.add_job(id="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
