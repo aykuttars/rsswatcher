@@ -59,11 +59,12 @@ def rss_parser():
         response.encoding = response.apparent_encoding
         encoding = response.encoding if "charset" in response.headers.get("content-type", "").lower() else "ISO-8859"
         resp_text = json.loads(json.dumps(xmltodict.parse(response.text)))
-        header   = "empty"
-        detail   = "empty"
-        url      = "empty"
-        date     = "empty"
-        provider = "empty"
+        header   = None
+        detail   = None
+        url      = None
+        date     = None
+        provider = None
+        image    = None
         users = [ user.public_id for user in Users.objects.all()]
         if 'rss'in resp_text and 'channel' in resp_text['rss'] and 'item' in resp_text['rss']['channel']:
             for items in resp_text['rss']['channel']['item']:
@@ -108,7 +109,7 @@ def rss_parser():
                         detail=items['summary']['#text']
                 date   = dateparser.parse(items['published'])
                 if items['content']['@type']=='html':
-                    image = items['content']['#text']
+                    image = BeautifulSoup(items['content']['#text'],"html.parser").find('img')['src']
                 rsspost = RssPosts()
                 rsspost.header=header
                 rsspost.detail=detail

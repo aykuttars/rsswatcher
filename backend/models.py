@@ -15,14 +15,14 @@ class RssFeeds(Document):
     url          = StringField()
 
 class RssPosts(Document):
-    header       = StringField()
+    header       = StringField(null=True)
     detail       = StringField(null=True)
-    url          = StringField()
-    date         = DateTimeField(default=datetime.datetime.utcnow())
-    provider     = StringField()
-    image        = StringField()
+    url          = StringField(null=True)
+    date         = DateTimeField(default=datetime.datetime.utcnow(),null=True)
+    provider     = StringField(null=True)
+    image        = StringField(null=True)
     rank         = FloatField(max_length=3, choices=RANKS,default=0)
-    users        = ListField()
+    users        = ListField(null=True)
 class ExpiredJwtTokens(Document):
     token        = StringField(null=False)
     expired_date = DateTimeField()
