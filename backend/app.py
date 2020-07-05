@@ -207,8 +207,20 @@ def delete_user(current_user,public_id):
         return jsonify({'message':'The user has been deleted'})
     else:
         return jsonify({'message':'The user has not been deleted'})
-@myapp.route('/login',methods=['POST'])
+@myapp.route('/login',methods=['POST','DELETE'])
 def login():
+    if request.method == 'DELETE':
+        if  request.headers.get('x-access-token'):
+            token =request.headers.get('x-access-token')
+            jwt_token = jwt.decode(token,myapp.config['SECRET_KEY'])
+            if jwt_token.get('expires'):
+                deleted_token =ExpiredJwtTokens.objects.create(
+                    token =token,
+                    expired_date=jwt_token.get('expires')
+                )
+                if(deleted_token.pk):
+                    return jsonify({'message':'Successfully logged out'})
+                
     authentication = request.get_json()
     if not authentication or not authentication['username'] or not authentication['password']:
         return make_response({'message':'Username or password wrong','status':'error'},404)
@@ -241,7 +253,6 @@ def search_feeds(current_user):
         date = datetime.datetime.strptime(request.args.get('time'), '%Y-%m-%d %H:%M:%S')
         
     search =  request.args.get('search')
-    now    =  datetime.datetime.utcnow()
     
     if request.args.get('draw'):
         if request.args.get('search[value]'):

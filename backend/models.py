@@ -19,3 +19,6 @@ class RssPosts(Document):
     image        = StringField()
     rank         = FloatField(max_length=3, choices=RANKS,default=0)
     users        = ListField()
+class ExpiredJwtTokens(Document):
+    token        = StringField(null=False)
+    expired_date = DateTimeField()
