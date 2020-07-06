@@ -120,7 +120,7 @@ curl --location --request DELETE 'http://127.0.0.1:5000/users/<user_id>' \
 - 400: token expired or invalid
 ```json
 {
-'message':'The user has been deleted'
+"message":"The user has been deleted"
 }
 ```
 ### Authorize User
@@ -135,7 +135,7 @@ curl --location --request DELETE 'http://127.0.0.1:5000/users/<user_id>' \
 - 400: token expired or invalid
 ```json
 {
-'message':'The user has been authorized to admin'
+"message":"The user has been authorized to admin"
 }
 ```
 ### List all users
@@ -302,7 +302,7 @@ curl --location --request GET 'http://127.0.0.1:5000/feeds/' \
 - 400: token, invalid or missing field
 - 401: unauthorized
 ```json
-{'Message':'New source created','id':5f0284d52ef02742ef4747e2}
+{"Message":"New source created","id":"5f0284d52ef02742ef4747e2"}
 ```
 ### Delete a Feed
 
