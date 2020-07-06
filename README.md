@@ -10,13 +10,7 @@ RSS Watchers requires python3.8 and mongoDb
   
 
 ```bash
-
-  
-
 git clone https://github.com/aykuttars/rsswatcher.git
-
-  
-
 ```
 
   
@@ -30,28 +24,12 @@ You can start both api and frontend development servers by typing `docker-compos
   
 
 ## Backend
-
-  
-
 Jwt authentication used to create API functionality.
 
-  
-
 ``` bash
-
-  
-
 cd backend
-
-  
-
 pip install -r requirements.txt
-
-  
-
 ```
-
-  
 
 # Running App Locally
 
@@ -62,9 +40,7 @@ pip install -r requirements.txt
   
 
 ``` bash
-
 Python app.py
-
 ```
 
 Backend serves on 5000 port.
@@ -108,7 +84,6 @@ Used Bootstrap 4 and Jquery libraries
 -  `"password":string` password for user
 
 ```bash
-
 --request POST 'http://127.0.0.1:5000/users/'
 
 --form 'username=newuser'
@@ -118,12 +93,11 @@ Used Bootstrap 4 and Jquery libraries
 --form 'name=newname'
 
 --form 'surname=newsurname'
-
 ```
 
 **Response**
 
-- 200: New User Created
+- 201: New User Created
 
 - 401: user already exists or fields are missing
 
@@ -135,35 +109,23 @@ Used Bootstrap 4 and Jquery libraries
 
 **Request**
 
-  
-
 `POST /login/`
-
-  
-
 **Arguments**
-
-  
 
 -  `"username":string`
 
 -  `"password":string`
 ```bash
-
 --request POST 'http://127.0.0.1:5000/login/'
-
 --form 'username=useradmin'
 
 --form 'password=userpasswd'
-
 ```
 **Response**
 
-- 200: logged in successfully
+- 201: logged in successfully
 
-- 400: invalid credentials
-
-  
+- 401: invalid credentials
 
 ```json
 {
@@ -180,17 +142,15 @@ Used Bootstrap 4 and Jquery libraries
 `GET /users/<user_id>`
 
 ```bash
-
 --request GET 'http://127.0.0.1:5000/users/<user_id>'
 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
-
 ```
 **Response**
 
-- 200: returns user list
+- 201: returns user list
 
-- 400: token expired or invalid
+- 401: token expired or invalid
 ```json
 {
   "user": {
@@ -212,15 +172,10 @@ Used Bootstrap 4 and Jquery libraries
 
 **Response**
 
-- 200: returns success
+- 204: returns success
 
-- 400: token expired or invalid
+- 401: token expired or invalid
 ```json
-{
-"message":"The user has been deleted"
-}
-```
-
 ### Authorize User
 **Request**
 
@@ -231,14 +186,13 @@ Used Bootstrap 4 and Jquery libraries
 --request PUT 'http://127.0.0.1:5000/users/<user_id>'
 
 --header 'x-access-token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
-
 ```
 
 **Response**
 
 - 200: returns success
 
-- 400: token expired or invalid
+- 401: token expired or invalid
 
 ```json
 {
@@ -253,21 +207,18 @@ Used Bootstrap 4 and Jquery libraries
 `GET /users`
 
 ```bash
-
---request GET 'http://127.0.0.1:5000/users/'
+--request GET 'http://127.0.0.1:5000/users'
 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
-
 ```
 
 **Response**
 
-- 200: returns list of users
+- 201: returns list of users
 
 - 401: unauthorized, invalid or expired token
 
 ```json
-
 {
   "users": [
     {
@@ -296,24 +247,14 @@ Used Bootstrap 4 and Jquery libraries
     }
   ]
 }
-
 ```
-
 ### List all feeds
-
-  
 
 **Request**
 
-  
-
-`GET /feeds/`
-
-  
+`GET /feeds`
 
 **Arguments**
-
-  
 
 -  `"start":integer`
 
@@ -322,15 +263,8 @@ Used Bootstrap 4 and Jquery libraries
 -  `"search":string`
 
 -  `"date":string`
-
-  
-
 ````bash
-
-  
-
---request GET 'http://127.0.0.1:5000/feeds/' \
-
+--request GET 'http://127.0.0.1:5000/feeds' 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
 
 --urlparams 'start=start'
@@ -345,9 +279,9 @@ Used Bootstrap 4 and Jquery libraries
 
 **Response**
 
-- 200: success
+- 201: success
 
-- 400: Token expired, invalid or missing field
+- 401: Token expired, invalid or missing field
 
 ```json
 [
@@ -358,7 +292,7 @@ Used Bootstrap 4 and Jquery libraries
     "id": "5f0284d52ef02742ef4747e3",
     "image": "https://iasbh.tmgrup.com.tr/21eb82/650/344/0/36/652/379?u=https://isbh.tmgrup.com.tr/sbh/2020/07/05/gaziantepte-15-kilo-400-gram-eroin-ele-gecirildi-1593927581143.jpg",
     "provider": "Sabah",
-    "rank": 0,
+    "rank": 0.0,
     "url": "https://www.sabah.com.tr/gundem/2020/07/05/gaziantepte-15-kilo-400-gram-eroin-ele-gecirildi"
   },
   {
@@ -368,7 +302,7 @@ Used Bootstrap 4 and Jquery libraries
     "id": "5f0284d52ef02742ef4747e2",
     "image": "https://iasbh.tmgrup.com.tr/ac2984/650/344/0/112/800/532?u=https://isbh.tmgrup.com.tr/sbh/2020/07/05/1593927836561.jpg",
     "provider": "Sabah",
-    "rank": 0,
+    "rank": 0.0,
     "url": "https://www.sabah.com.tr/gundem/2020/07/05/son-dakika-haberi-nejat-das-kimdir-bataklik-operasyonu-ile-cokertilen-cetede-nejat-das-tutuklandi"
   },
   {
@@ -378,7 +312,7 @@ Used Bootstrap 4 and Jquery libraries
     "id": "5f0284d52ef02742ef4747e1",
     "image": "https://iasbh.tmgrup.com.tr/e31773/320/320/83/0/349/266?u=https://isbh.tmgrup.com.tr/sbh/2020/07/05/kasikci-davasinda-soke-eden-ifadeler-tandiri-yaktirip-yallah-dediler-1593929552147.jpg",
     "provider": "Sabah",
-    "rank": 0,
+    "rank": 0.0,
     "url": "https://www.sabah.com.tr/gundem/2020/07/05/kasikci-davasinda-soke-eden-ifadeler-tandiri-yaktirip-yallah-dediler"
   },
   {
@@ -388,7 +322,7 @@ Used Bootstrap 4 and Jquery libraries
     "id": "5f0284d42ef02742ef474792",
     "image": "https://im.haberturk.com/2020/07/04/ver1593928938/2733803_manset.jpg",
     "provider": "haberturk",
-    "rank": 0,
+    "rank": 0.0,
     "url": "https://www.haberturk.com/galatasaray-da-degisim-basliyor-2733803-spor"
   },
   {
@@ -398,17 +332,14 @@ Used Bootstrap 4 and Jquery libraries
     "id": "5f0284d52ef02742ef4747e0",
     "image": "https://iasbh.tmgrup.com.tr/873ca9/320/320/145/0/596/451?u=https://isbh.tmgrup.com.tr/sbh/2020/07/05/soke-eden-goruntuler-koronaviruse-aldirmadan-halicte-yat-partisi-duzenlediler-1593930452372.jpg",
     "provider": "Sabah",
-    "rank": 0,
+    "rank": 0.0,
     "url": "https://www.sabah.com.tr/gundem/2020/07/05/soke-eden-goruntuler-koronaviruse-aldirmadan-halicte-yat-partisi-duzenlediler"
   }
 ]
 ```
-
 ### Create new source
 
 **Request**
-
-  
 
 `POST /rss_sources`
 
@@ -419,26 +350,27 @@ Used Bootstrap 4 and Jquery libraries
 -  `"url":string`
 
 ```bash
-
---request POST'http://127.0.0.1:5000/rss_sources/'
+--request POST'http://127.0.0.1:5000/rss_sources'
 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
 
 --form 'name=name'
 
 --form 'url=url'
-
 ```
 **Response**
 
 - 201: created successfully
 
-- 400: token, invalid or missing field
+- 401: token, invalid or missing field
 
 - 401: unauthorized
 
 ```json
-{"Message":"New source created","id":"5f0284d52ef02742ef4747e2"}
+{
+  "Message": "New source created",
+  "id": "5f0284d52ef02742ef4747e2"
+}
 ```
 
 ### Delete a source
@@ -452,22 +384,15 @@ Used Bootstrap 4 and Jquery libraries
 --request DELETE 'http://127.0.0.1:5000/rss_sources/<feed_id>'
 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
-
 ```
-
 **Response**
 
-- 201: returns success
+- 204: returns success
 
 - 401: unauthorized
 
 - 404: no source found by given id
 
-```json
-{
-"message":"The source has been deleted"
-}
-```
 ### Give Rank
 **Request**
 
@@ -481,16 +406,14 @@ Used Bootstrap 4 and Jquery libraries
 -  `body "rank":float`
 
 ```bash
-
 --request PUT 'http://127.0.0.1:5000/feeds/<feed_id>'
 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
-
 ```
 
 **Response**
 
-- 204: feed ranked
+- 200: feed ranked
 
 - 401: unauthorized
 
@@ -503,22 +426,13 @@ Used Bootstrap 4 and Jquery libraries
 `DELETE /login`
 
 ```bash
-
 --request DELETE 'http://127.0.0.1:5000/login'
 
 --header 'x-access-token':'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZXhwIjoxNTg2MzUyOTczLCJlbWFpbCI6InRlc3RAcGl6emEuY29tIiwib3JpZ19pYXQiOjE1ODYzNTE5NzN9.IpwRhxHdkUUqmPYyiZSoVt0K0gKIULvilj9eKonofQg'
 ```
 **Response**
-- 201: returns success
+- 204: returns success
 
 - 401: unauthorized
 
 - 404: no feed found by given id
-
-```json
-
-{
-"message":"Successfully logged out"
-}
-
-```
