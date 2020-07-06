@@ -126,6 +126,10 @@ def delete_old_tokens():
     tokens = ExpiredJwtTokens.objects.filter(expired_date__lte=datetime.datetime.utcnow())
     tokens.delete()
 ###################--User-Operations--##################
+@token_required
+def create_user(current_user):
+    if not current_user.is_admin:
+        return jsonify({'message':'you are not authorized user'})
 @myapp.route('/users',methods=['GET'])
 @token_required
 def get_all_users(current_user):
@@ -163,10 +167,11 @@ def get_one_user(current_user,public_id):
     return jsonify({'user':usr_dct})
 
 @myapp.route('/users',methods=['POST'])
-@token_required
-def create_user(current_user):
-    if not current_user.is_admin:
-        return jsonify({'message':'you are not authorized user'})
+
+def create_super_user():
+    check_usr = Users.objects.filter(is_admin=True).first()
+    if check_usr:
+        create_user()
     data  =request.get_json()
     hashed_passwd = makepasswd(data['password'],method ='sha256')
     new_user = Users()
@@ -175,6 +180,8 @@ def create_user(current_user):
     new_user.username     = data['username']
     new_user.public_id    = str(uuid.uuid4())
     new_user.passwd       = hashed_passwd
+    if not check_usr:
+        new_user.is_admin = True
     new_user.save()
     resp = {'Message':'New User Not Created'}
     if new_user:
