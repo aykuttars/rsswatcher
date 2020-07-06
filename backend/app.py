@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, make_response
 from mongoengine import *
 from mongoengine.queryset.visitor import Q as QM
-from PIL import Image
 from werkzeug.security import generate_password_hash as makepasswd, check_password_hash as chkpasswd
 from functools import wraps
 from collections import OrderedDict
@@ -17,6 +16,7 @@ import datetime
 import pytz
 import jwt
 import uuid
+import os
 import dateparser
 
 myapp = Flask(__name__)
@@ -24,7 +24,7 @@ CORS(myapp)
 scheduler = APScheduler()
 myapp.config['SECRET_KEY'] ='y0gve&v@x8efft-+gycp(pm!l8koa_+d4uecr&bm*l49%!'
 myapp.config['JSON_AS_ASCII'] = False
-connect('rsswatch',host='127.0.0.1', username='example', password='example', authentication_source='admin')
+connect(os.environ['MONGODB_DATABASE'],host=os.environ['MONGODB_HOSTNAME'], username=os.environ['MONGODB_USERNAME'], password=os.environ['MONGODB_PASSWORD'], authentication_source='admin')
 myapp.config['MONGODB_CONNECT'] = True
 
 ####################--JWT-Decorator--###################
@@ -353,4 +353,7 @@ scheduler.add_job(id="jwt expires checker",func=delete_old_tokens,trigger='inter
 scheduler.add_job(id="Rss Pusher",func=rss_parser,trigger='interval',minutes =15)
 scheduler.start()
 if __name__ == '__main__':
-    myapp.run(debug =True)
+    ENVIRONMENT_DEBUG = os.environ.get("APP_DEBUG", True)
+    ENVIRONMENT_PORT  = os.environ.get("APP_PORT", '5000')
+    ENVIRONMENT_HOST  = os.environ.get("APP_Host", '0.0.0.0')
+    myapp.run(host=ENVIRONMENT_HOST, port=ENVIRONMENT_PORT, debug=ENVIRONMENT_DEBUG)
