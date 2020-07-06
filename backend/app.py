@@ -208,7 +208,8 @@ def delete_user(current_user,public_id):
     user = Users.objects.filter(public_id=public_id).first()
     if not user:
         return jsonify({'message':'No user found!'})
-    user.delete()
+    if current_user != user:
+        user.delete()
     user = Users.objects.filter(public_id=public_id).first()
     if not user:
         return jsonify({'message':'The user has been deleted'})
@@ -238,7 +239,7 @@ def login():
 
     if chkpasswd(user.passwd,authentication['password']):
         token     = jwt.encode({'id':user.public_id,'expires':str(datetime.datetime.utcnow()+datetime.timedelta(minutes =30))},myapp.config['SECRET_KEY'],algorithm='HS256')
-        resp_body = {'user_name':user.username,'token_expires':pytz.utc.localize(datetime.datetime.utcnow()+datetime.timedelta(minutes =30)).isoformat(),'jwt_token':token.decode('UTF-8'),'is_admin':user.is_admin}
+        resp_body = {'user_name':user.username,'user_name':user.username,'token_expires':pytz.utc.localize(datetime.datetime.utcnow()+datetime.timedelta(minutes =30)).isoformat(),'jwt_token':token.decode('UTF-8'),'is_admin':user.is_admin}
         resp      = jsonify(resp_body)
         resp.headers['Access-Control-Token'] = token.decode('UTF-8')
         return resp
@@ -266,7 +267,7 @@ def add_rss_sources(current_user):
     data   = request.get_json()
     if data.get('name') and data.get('url'):
         source = RssFeeds.objects.create(name=data['name'],url=data['url'])
-        return jsonify({'Message':'New source sreated','id':str(source.pk)})
+        return jsonify({'Message':'New source created','id':str(source.pk)})
     return jsonify({'Message':'source not created'})
 
 @myapp.route('/rss_sources/<id>',methods=['DELETE'])
